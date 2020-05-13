@@ -1,0 +1,5 @@
+"""所有的错误码放在这里"""
+
+PHONE_ERROR = 1000
+SEND_VCODE_ERROR = 1001
+VCODE_ERROR = 1002
