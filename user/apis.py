@@ -7,8 +7,8 @@ from libs.sms import send_sms
 from common import errors
 from libs.http import render_json
 from common import keys
-from user.models import User
-
+from user.models import User, Profile
+from user import forms
 
 def submit_phone(request):
     """获取短信验证码"""
@@ -76,7 +76,29 @@ def get_profile(request):
 
 def edit_profile(request):
     """修改个人资料、及交友资料"""
-    pass
+    # 定义两个form表单的实例对象
+    user_form = forms.UserForm(request.POST)
+    profile_form = forms.ProfileForm(request.POST)
+
+    # 检查user_form和profile_form
+    if not user_form.is_valid() or not profile_form.is_valid():
+        # 返回错误信息.
+        form_errors = {}
+        form_errors.update(user_form.errors)
+        form_errors.update(profile_form.errors)
+        return render_json(code=errors.PROFILE_ERROR, data=form_errors)
+
+    # 如果form表单提交的数据没问题
+    # 更新user和profile
+    uid = request.session.get('uid')
+    # user_form.cleaned_data本身就是一个字典.可以使用**进行解包
+    User.objects.filter(id=uid).update(**user_form.cleaned_data)
+
+    # 更新或者创建profile
+    # 注意: profile和user是一对一的关系, 创建profile的时候,为了满足一对一的关系.
+    #  必须保证创建出来的profile的id和这个profile对应的user的id是一致.
+    Profile.objects.update_or_create(id=uid, defaults=profile_form.cleaned_data)
+    return render_json()
 
 
 def upload_avatar(request):
