@@ -7,8 +7,10 @@ from libs.sms import send_sms
 from common import errors
 from libs.http import render_json
 from common import keys
+from swiper import config
 from user.models import User, Profile
 from user import forms
+from libs.qiniuyun import upload_qiniu
 
 def submit_phone(request):
     """获取短信验证码"""
@@ -103,7 +105,29 @@ def edit_profile(request):
 
 def upload_avatar(request):
     """头像上传"""
-    pass
+    # 先获取用户上传的文件.
+    # 然后保存到本地
+    # 然后上传到七牛云
+    # 再然后使用七牛云的图片地址更新用户的avatar属性.
+    avatar = request.FILES.get('avatar')
+    # print(type(avatar))
+    # print(avatar.name)
+    # print(avatar.size)
+    # print(avatar.content_type)
+    # 保存到本地, 不要用用户上传的文件名.
+    uid = request.uid
+    filename = keys.AVATAR % uid
+    # with open(f'./media/{filename}', mode='wb+') as fp:
+    #     for chunk in avatar.chunks():
+    #         fp.write(chunk)
+
+    # 上传到七牛云
+    upload_qiniu(avatar.read(), filename)
+    # 修改user的avatar属性
+    user = User.objects.get(id=uid)
+    user.avatar = config.QN_URL + filename
+    user.save()
+    return render_json()
 
 
 

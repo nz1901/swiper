@@ -11,7 +11,7 @@ class AuthMiddleware(MiddlewareMixin):
         # 设定可以直接跳过登录检查的地址白名单
         white_list = ['/api/user/submit/phone/',
                       '/api/user/submit/vcode/']
-        print(request.path)
+        # print(request.path)
         if request.path in white_list:
             return None
 
