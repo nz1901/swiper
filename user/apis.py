@@ -66,7 +66,7 @@ def submit_vcode(request):
 
 def get_profile(request):
     """查看个人交友资料"""
-    uid = request.session.get('uid')
+    uid = request.uid
     user = User.objects.get(id=uid)
     # 用户的交友资料和用户是一对一的关系, 怎么实现一对一的关系?
     # 保证两张表的id是一致. user id = 1, 对应的profile id 也是1.
@@ -90,7 +90,7 @@ def edit_profile(request):
 
     # 如果form表单提交的数据没问题
     # 更新user和profile
-    uid = request.session.get('uid')
+    uid = request.uid
     # user_form.cleaned_data本身就是一个字典.可以使用**进行解包
     User.objects.filter(id=uid).update(**user_form.cleaned_data)
 

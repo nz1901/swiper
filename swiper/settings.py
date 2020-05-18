@@ -44,7 +44,9 @@ MIDDLEWARE = [
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'libs.middlewares.AuthMiddleware',
 ]
+from django.contrib.sessions.middleware import SessionMiddleware
 
 ROOT_URLCONF = 'swiper.urls'
 
