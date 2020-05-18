@@ -59,15 +59,19 @@ def submit_vcode(request):
         user, _ = User.objects.get_or_create(phonenum=phone, defaults={'nickname': phone})
         # 把用户的id写入session
         request.session['uid'] = user.id
-        return render_json(data=user.to_dict())
+        return render_json(data=user.to_dict(exclude='id',))
     else:
         return render_json(code=errors.VCODE_ERROR, data='验证码错误')
 
 
-
 def get_profile(request):
     """查看个人交友资料"""
-    pass
+    uid = request.session.get('uid')
+    user = User.objects.get(id=uid)
+    # 用户的交友资料和用户是一对一的关系, 怎么实现一对一的关系?
+    # 保证两张表的id是一致. user id = 1, 对应的profile id 也是1.
+    # profile = Profile.objects.get(id=uid)
+    return render_json(data=user.profile.to_dict(exclude=('id',)))
 
 
 def edit_profile(request):
