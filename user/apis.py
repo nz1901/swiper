@@ -24,7 +24,7 @@ def submit_phone(request):
         # return JsonResponse({'code': errors.PHONE_ERROR, 'data': '手机号码格式有误'})
         return render_json(code=errors.PHONE_ERROR, data='手机号码格式有误')
     # 发送验证码
-    flag = send_sms(phone)
+    flag = send_sms.delay(phone)
     if flag:
         # 发送成功
         # return JsonResponse({'code': 0, 'data': '手机验证码发送成功'})
@@ -122,7 +122,7 @@ def upload_avatar(request):
     #         fp.write(chunk)
 
     # 上传到七牛云
-    upload_qiniu(avatar.read(), filename)
+    upload_qiniu.delay(avatar.read(), filename)
     # 修改user的avatar属性
     user = User.objects.get(id=uid)
     user.avatar = config.QN_URL + filename

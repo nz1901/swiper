@@ -8,7 +8,7 @@ from django.conf import settings
 
 from swiper import config
 from common import keys
-
+from worker import celery_app
 
 def gen_vcode(size=4):
     # 返回4位随机数 ( 1000, 9999)
@@ -32,6 +32,9 @@ def gen_vcode(size=4):
 #     return True
 
 client = AcsClient(config.AK_ID, config.AK_SE, 'cn-hangzhou')
+
+
+@celery_app.task
 def send_sms(phone):
     request = CommonRequest()
     request.set_accept_format('json')
