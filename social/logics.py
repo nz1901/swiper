@@ -1,6 +1,11 @@
 import datetime
 
+from django.core.cache import cache
+from django.db.models import Q
+
+from common import keys
 from social.models import Swiped, Friend
+from swiper import config
 from user.models import User
 
 
@@ -58,3 +63,47 @@ def superlike(uid, sid):
         Friend.make_friends(uid, sid)
         return True
     return False
+
+
+def rewind(uid):
+    key = keys.REWIND % uid
+    cached_rewind_times = cache.get(key, 0)
+    if cached_rewind_times < config.MAX_REWIND_TIMES:
+        # 说明可以执行反悔操作.
+        # 查找上一次操作的Swiped记录
+        record = Swiped.objects.latest('time')
+
+        # 如果建立了好友关系,好友关系也需取消.
+        if Friend.is_friend(uid1=uid, uid2=record.sid):
+            Friend.delete_friend(uid1=uid, uid2=record.sid)
+        record.delete()
+
+        # 更新缓存
+        cached_rewind_times += 1
+        now = datetime.datetime.now()
+        timeout = 86400 - (3600 * now.hour + 60 * now.minute + now.second)
+        cache.set(key, cached_rewind_times, timeout)
+        return True
+    else:
+        return False
+
+
+def show_friends(uid):
+    friends = Friend.objects.filter(Q(uid1=uid) | Q(uid2=uid))
+    friends_id = []
+    for friend in friends:
+        if friend.uid1 == uid:
+            friends_id.append(friend.uid2)
+        else:
+            friends_id.append(friend.uid1)
+    # 这里就不太适合写下面这种列表推导式
+    # [friends_id.append(friend.uid2) if friend.uid1 == uid else friends_id.append(friend.uid2)
+    #  for friend in friends]
+    users = User.objects.filter(id__in=friends_id)
+    # 下面这种写法,每次循环都访问了一次数据库.强烈不推荐.
+    # users = []
+    # for id in friends_id:
+    #     user = User.objects.get(id=id)
+    #     users.append(user)
+    data = [user.to_dict() for user in users]
+    return data

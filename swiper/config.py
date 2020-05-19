@@ -9,3 +9,6 @@ QN_URL = 'http://qaip2ov4v.bkt.clouddn.com/'
 QN_AK = 'uTCi4T1X2ozCDwQvzyEjCszNsATntmvKv-8ntFh0'
 QN_SK = 'utEyFUPxY1C_wy8O2k3zbSnUteDhwWbigAGP4VOP'
 QN_BUCKET = 'nz1901'
+
+# 最大反悔次数
+MAX_REWIND_TIMES = 3

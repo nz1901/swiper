@@ -49,5 +49,8 @@ class Friend(models.Model):
         uid1, uid2 = (uid2, uid1) if uid1 > uid2 else (uid1, uid2)
         return Friend.objects.filter(uid1=uid1, uid2=uid2).delete()
 
-
+    @classmethod
+    def is_friend(cls, uid1, uid2):
+        uid1, uid2 = (uid2, uid1) if uid1 > uid2 else (uid1, uid2)
+        return Friend.objects.filter(uid1=uid1, uid2=uid2).exists()
 
