@@ -24,5 +24,8 @@ urlpatterns = [
     path('api/user/edit/profile/', user_api.edit_profile),
     path('api/user/upload/avatar/', user_api.upload_avatar),
 
-    path('api/social/get/recd/list/', social_api.get_recd_list)
+    path('api/social/get/recd/list/', social_api.get_recd_list),
+    path('api/social/like/', social_api.like),
+    path('api/social/dislike/', social_api.dislike),
+    path('api/social/superlike/', social_api.superlike)
 ]

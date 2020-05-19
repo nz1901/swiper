@@ -1,33 +1,38 @@
 import datetime
 
 from libs.http import render_json
-from social.models import Swiped
+from social.models import Swiped, Friend
 from user.models import User
+from social import logics
 
 
 def get_recd_list(request):
-    now = datetime.datetime.now()
-    uid = request.uid
-    user = User.objects.get(id=uid)
-    # 根据最大最小交友年龄可以算出用户的出生区间.
-    max_birth_year = now.year - user.profile.min_dating_age
-    min_birth_year = now.year - user.profile.max_dating_age
-    # 从swiped表中查询已经被当前用户滑过的人
-    # 已经滑过的人就不要再出现在推荐了列表了.
-    # 只需要被滑过的人的id
-    swiped_list = Swiped.objects.filter(uid=uid).only('sid')
-    # 取出sid
-    sid_list = [s.sid for s in swiped_list]
-    # 把自己也排除
-    sid_list.append(uid)
-    users = User.objects.filter(location=user.profile.dating_location,
-            birthday__range=[datetime.date(year=min_birth_year,
-                                           month=user.birthday.month,
-                                           day=user.birthday.day),
-                             datetime.date(year=max_birth_year,
-                                           month=user.birthday.month,
-                                           day=user.birthday.day)],
-                        gender=user.profile.dating_gender)\
-                        .exclude(id__in=sid_list)[:20]
-    data = [user.to_dict() for user in users]
+    data = logics.get_recd_list(request.uid)
     return render_json(data=data)
+
+
+def like(request):
+    sid = int(request.GET.get('sid'))
+    uid = request.uid
+    flag = logics.like(uid, sid)
+    if flag:
+        return render_json(data={'matched': True})
+    return render_json(data={'matched': False})
+
+
+def dislike(request):
+    # 创建一条mark为不喜欢的Swiped记录.
+    # 检查一下是否有好友关系,如果有的话,删除好友关系.
+    uid = request.uid
+    sid = int(request.GET.get('sid'))
+    logics.dislike(uid, sid)
+    return render_json()
+
+
+def superlike(request):
+    sid = int(request.GET.get('sid'))
+    uid = request.uid
+    flag = logics.superlike(uid, sid)
+    if flag:
+        return render_json(data={'matched': True})
+    return render_json(data={'matched': False})
