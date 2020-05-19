@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.urls import path
 from user import apis as user_api
+from social import apis as social_api
 
 urlpatterns = [
     path('api/user/submit/phone/', user_api.submit_phone),
@@ -23,4 +24,5 @@ urlpatterns = [
     path('api/user/edit/profile/', user_api.edit_profile),
     path('api/user/upload/avatar/', user_api.upload_avatar),
 
+    path('api/social/get/recd/list/', social_api.get_recd_list)
 ]
