@@ -1,4 +1,5 @@
 import re
+from logging import getLogger
 
 from django.core.cache import cache
 from django.views.decorators.http import require_http_methods
@@ -11,6 +12,11 @@ from swiper import config
 from user.models import User, Profile
 from user import forms
 from libs.qiniuyun import upload_qiniu
+
+
+info_logger = getLogger('inf')
+error_logger = getLogger('err')
+
 
 def submit_phone(request):
     """获取短信验证码"""
@@ -28,9 +34,11 @@ def submit_phone(request):
     if flag:
         # 发送成功
         # return JsonResponse({'code': 0, 'data': '手机验证码发送成功'})
+        info_logger.info(f'成功给{phone}发生短信')
         return render_json()
     else:
         # return JsonResponse({'code': errors.SEND_VCODE_ERROR, 'data': '手机验证码发送失败'})
+        error_logger.error(f'给{phone}发送短信失败')
         return render_json(code=errors.SEND_VCODE_ERROR, data='手机验证码发送失败')
 
 
@@ -61,8 +69,10 @@ def submit_vcode(request):
         user, _ = User.objects.get_or_create(phonenum=phone, defaults={'nickname': phone})
         # 把用户的id写入session
         request.session['uid'] = user.id
+        info_logger.info(f'user {user.nickname} 登录')
         return render_json(data=user.to_dict(exclude='id',))
     else:
+        error_logger.error('验证码错误')
         return render_json(code=errors.VCODE_ERROR, data='验证码错误')
 
 
