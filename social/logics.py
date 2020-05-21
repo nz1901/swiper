@@ -1,5 +1,4 @@
 import datetime
-Exception
 
 from django.core.cache import cache
 from django.db.models import Q
@@ -87,7 +86,6 @@ def rewind(uid):
         return True
     else:
         raise errors.ExceedMaximumRewindTimes
-
 
 def show_friends(uid):
     friends = Friend.objects.filter(Q(uid1=uid) | Q(uid2=uid))

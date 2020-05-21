@@ -1,5 +1,9 @@
 from common import keys, errors
 from libs.http import render_json
+from social.models import Swiped, Friend
+from swiper import config
+from user.models import User
+
 from social import logics
 
 
