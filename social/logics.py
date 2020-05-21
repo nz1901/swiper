@@ -1,9 +1,10 @@
 import datetime
+Exception
 
 from django.core.cache import cache
 from django.db.models import Q
 
-from common import keys
+from common import keys, errors
 from social.models import Swiped, Friend
 from swiper import config
 from user.models import User
@@ -85,7 +86,7 @@ def rewind(uid):
         cache.set(key, cached_rewind_times, timeout)
         return True
     else:
-        return False
+        raise errors.ExceedMaximumRewindTimes
 
 
 def show_friends(uid):
@@ -97,8 +98,7 @@ def show_friends(uid):
         else:
             friends_id.append(friend.uid1)
     # 这里就不太适合写下面这种列表推导式
-    # [friends_id.append(friend.uid2) if friend.uid1 == uid else friends_id.append(friend.uid2)
-    #  for friend in friends]
+    # [friend.uid2 if friend.uid1 == uid else friend.uid2 for friend in friends]
     users = User.objects.filter(id__in=friends_id)
     # 下面这种写法,每次循环都访问了一次数据库.强烈不推荐.
     # users = []

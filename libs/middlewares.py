@@ -1,5 +1,6 @@
 from django.utils.deprecation import MiddlewareMixin
 
+from common.errors import LogicErr
 from libs.http import render_json
 from common import errors
 
@@ -22,4 +23,13 @@ class AuthMiddleware(MiddlewareMixin):
         # 存在的话,直接把uid写入request
         request.uid = uid
 
+
+# 捕获逻辑错误异常
+class LogicErrMiddleware(MiddlewareMixin):
+    def process_exception(self, request, exception):
+        # 只捕获逻辑错误异常
+        if isinstance(exception, LogicErr):
+            # 可以捕获.
+            # 直接返回response
+            return render_json(code=exception.code, data=exception.data)
 
