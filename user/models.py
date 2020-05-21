@@ -1,7 +1,7 @@
 from django.db import models
 
 from libs.mixins import ModelMixin
-
+from vip.models import Vip
 
 SEX = (
         ('男', '男'),
@@ -25,6 +25,16 @@ class User(models.Model, ModelMixin):
     birthday = models.DateField(verbose_name='出生日', default='2000-1-1')
     avatar = models.CharField(max_length=256, verbose_name='个人头像的url地址')
     location = models.CharField(max_length=128, verbose_name='常居地')
+
+    # vip和用户之间是一对多的关系, 把关系定义在多这一头,即用户
+    vip_id = models.IntegerField(default=1, verbose_name='用户的vipid')
+
+    @property
+    def vip(self):
+        # 返回用户的vip
+        if not hasattr(self, '_vip'):
+            self._vip = Vip.objects.get(id=self.vip_id)
+        return self._vip
 
     # 把profile变成user的属性
     # profile = Profile.objects.get(id=self.id)
