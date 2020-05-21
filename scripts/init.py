@@ -15,7 +15,7 @@ django.setup()
 
 
 from user.models import User
-# from vip.models import Vip, Permission, VipPermRelation
+from vip.models import Vip, Permission, VipPermRelation
 
 
 last_names = (
@@ -133,7 +133,7 @@ def create_vip_perm_relations():
 
 
 if __name__ == '__main__':
-    create_robots(5000)
-    # init_permission()
-    # init_vip()
-    # create_vip_perm_relations()
+    # create_robots(5000)
+    init_permission()
+    init_vip()
+    create_vip_perm_relations()

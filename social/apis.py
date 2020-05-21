@@ -5,6 +5,7 @@ from swiper import config
 from user.models import User
 
 from social import logics
+from vip.logics import need_perm
 
 
 def get_recd_list(request):
@@ -29,7 +30,7 @@ def dislike(request):
     logics.dislike(uid, sid)
     return render_json()
 
-
+@need_perm('superlike')
 def superlike(request):
     sid = int(request.GET.get('sid'))
     uid = request.uid
@@ -39,6 +40,7 @@ def superlike(request):
     return render_json(data={'matched': False})
 
 
+@need_perm('rewind')
 def rewind(request):
     # 反悔功能.
     # 只能反悔上一次滑动
