@@ -1,5 +1,9 @@
-from django.db import models
+import random
 
+from django.db import models
+from django.core.cache import cache
+
+from common import keys
 from libs.mixins import ModelMixin
 from vip.models import Vip
 
@@ -41,6 +45,7 @@ class User(models.Model, ModelMixin):
     @property
     def profile(self):
         if not hasattr(self, '_profile'):
+            # 先从缓存中获取数据,如果获取不到,再从数据库获取,并写入缓存
             self._profile, _ = Profile.objects.get_or_create(id=self.id)
         return self._profile
 
