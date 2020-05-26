@@ -19,7 +19,7 @@ class AuthMiddleware(MiddlewareMixin):
         uid = request.session.get('uid')
         if not uid:
             # 不存在, 说明没登录
-            return render_json(code=errors.LOGIN_REQUIRED, data='请登录')
+            return render_json(code=errors.LOGIN_REQUIRED, data='你好, 请登录')
         # 存在的话,直接把uid写入request
         request.uid = uid
 
