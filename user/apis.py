@@ -1,6 +1,8 @@
 import re
 from logging import getLogger
+
 import random
+
 
 from django.core.cache import cache
 from django.views.decorators.http import require_http_methods

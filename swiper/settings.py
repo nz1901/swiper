@@ -197,7 +197,6 @@ LOGGING = {
     }
 }
 
-
 # session存入缓存
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
@@ -216,3 +215,4 @@ REDIS = {
         'db': 6
     }
 }
+
