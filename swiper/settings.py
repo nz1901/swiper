@@ -80,7 +80,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'nz1901',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': 'Changeme_123',
         'HOST': '127.0.0.1',
         'PORT': 3306
     }
@@ -125,6 +125,7 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 
+from django_redis.cache import RedisCache
 # 缓存的配置
 CACHES = {
     "default": {
@@ -195,3 +196,23 @@ LOGGING = {
         }
     }
 }
+
+# session存入缓存
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+
+# redis配置
+REDIS = {
+    'Master': {
+        'host': '127.0.0.1',
+        'port': 6379,
+        'db': 5
+    },
+    'Slave': {
+        'host': '127.0.0.1',
+        'port': 6379,
+        'db': 6
+    }
+}
+

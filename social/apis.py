@@ -1,11 +1,11 @@
-from common import keys, errors
+from common import keys
 from libs.http import render_json
-from social.models import Swiped, Friend
-from swiper import config
-from user.models import User
-
 from social import logics
+
+from user.models import User
 from vip.logics import need_perm
+from libs.cache import rds
+from swiper import config
 
 
 def get_recd_list(request):
@@ -17,6 +17,7 @@ def like(request):
     sid = int(request.GET.get('sid'))
     uid = request.uid
     flag = logics.like(uid, sid)
+    rds.zincrby(config.TOP_N, config.LIKE_SCORE, keys.TOP_N_KEY % sid)
     if flag:
         return render_json(data={'matched': True})
     return render_json(data={'matched': False})
@@ -28,13 +29,16 @@ def dislike(request):
     uid = request.uid
     sid = int(request.GET.get('sid'))
     logics.dislike(uid, sid)
+    rds.zincrby(config.TOP_N, config.DISLIKE_SCORE, keys.TOP_N_KEY % sid)
     return render_json()
+
 
 @need_perm('superlike')
 def superlike(request):
     sid = int(request.GET.get('sid'))
     uid = request.uid
     flag = logics.superlike(uid, sid)
+    rds.zincrby(config.TOP_N, config.SUPERLIKE_SCORE, keys.TOP_N_KEY % sid)
     if flag:
         return render_json(data={'matched': True})
     return render_json(data={'matched': False})
@@ -55,4 +59,9 @@ def show_friends(request):
     # 从Friend表中查出uid是当前登录用户的id,或者sid是当前登录用户的id.]
     uid = request.uid
     data = logics.show_friends(uid)
+    return render_json(data=data)
+
+
+def top_n(request):
+    data = logics.get_top_n()
     return render_json(data=data)

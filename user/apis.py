@@ -1,6 +1,9 @@
 import re
 from logging import getLogger
 
+import random
+
+
 from django.core.cache import cache
 from django.views.decorators.http import require_http_methods
 
@@ -83,7 +86,10 @@ def get_profile(request):
     # 用户的交友资料和用户是一对一的关系, 怎么实现一对一的关系?
     # 保证两张表的id是一致. user id = 1, 对应的profile id 也是1.
     # profile = Profile.objects.get(id=uid)
-    return render_json(data=user.profile.to_dict(exclude=('id',)))
+    data = {}
+    data.update(user.to_dict())
+    data.update(user.profile.to_dict(exclude='id'))
+    return render_json(data=data)
 
 
 def edit_profile(request):
@@ -109,7 +115,13 @@ def edit_profile(request):
     # 更新或者创建profile
     # 注意: profile和user是一对一的关系, 创建profile的时候,为了满足一对一的关系.
     #  必须保证创建出来的profile的id和这个profile对应的user的id是一致.
-    Profile.objects.update_or_create(id=uid, defaults=profile_form.cleaned_data)
+    print(type(profile_form.cleaned_data))
+    print(profile_form.cleaned_data)
+    profile, _ = Profile.objects.update_or_create(id=uid, defaults=profile_form.cleaned_data)
+    # 更新缓存的数据
+    profile_key = keys.PROFILE % uid
+    user_key = keys.OBJECT % (User.__name__, uid)
+    cache.delete_many(profile_key, user_key)
     return render_json()
 
 
@@ -134,7 +146,7 @@ def upload_avatar(request):
     # 上传到七牛云
     upload_qiniu.delay(avatar.read(), filename)
     # 修改user的avatar属性
-    user = User.objects.get(id=uid)
+    user = User.objects.get(id=uid) # User.get
     user.avatar = config.QN_URL + filename
     user.save()
     return render_json()
